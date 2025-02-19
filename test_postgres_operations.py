@@ -3,6 +3,7 @@
 Created on Wed Feb 19 17:41:16 2025
 
 @author: Doing
+
 """
 
 import unittest
@@ -15,7 +16,9 @@ class TestPostgresDB(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         # Initialize the PostgresDB class with test database credentials
-        cls.db = PostgresDB(username="brenthom", password="Solar2025", database="fsecdatabase")
+
+        cls.db = PostgresDB(username="dpv", password="sun", database="fsecdatabase")
+
         
         # Create a test table
         cls.test_table_name = "test_table"
@@ -29,6 +32,7 @@ class TestPostgresDB(unittest.TestCase):
 
     @classmethod
     def create_test_table(cls):
+
         create_table_query = text(f"""
         CREATE TABLE IF NOT EXISTS {cls.test_table_name} (
             id SERIAL PRIMARY KEY,
