@@ -5,8 +5,8 @@ Database operations package.
 
 import pandas as pd
 import psycopg2
-from sqlalchemy import create_engine, text
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy import create_engine, text # type: ignore
+from sqlalchemy.exc import SQLAlchemyError # type: ignore
 import logging
 
 from .sqlite_operations import (
