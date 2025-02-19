@@ -6,121 +6,123 @@ Author: Brent
 """
 
 import pandas as pd
-import psycopg2
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 import logging
 
-def connect_to_postgres(username, password):
-    """
-    Establish a connection to the PostgreSQL database and execute a query.
 
-    Parameters:
-    username (str): PostgreSQL username.
-    password (str): PostgreSQL password.
-    """
-    with psycopg2.connect(
-        database="fsecdatabase", user=username, password=password, host="34.73.180.136", port=5432) as connection:
-        cursor = connection.cursor()
-        cursor.execute("SELECT * FROM 'fsecdatabase.module_metadata';")
+# Initialize logger
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-def create_postgres_records_from_dataframe(username, password, table_name, dataframe):
-    """
-    Insert new rows into the PostgreSQL table for every row in the DataFrame.
+class PostgresDB:
+    def __init__(self, username, password, host="34.73.180.136", port=5432, database="fsecdatabase"):
+        self.username = username
+        self.password = password
+        self.host = host
+        self.port = port
+        self.database = database
+        self.engine = create_engine(f"postgresql://{username}:{password}@{host}:{port}/{database}")
 
-    Parameters:
-    username (str): PostgreSQL username.
-    password (str): PostgreSQL password.
-    table_name (str): Name of the SQL table.
-    dataframe (pd.DataFrame): DataFrame containing data to insert.
-    """
-    engine = create_engine(f"postgresql://{username}:{password}@34.73.180.136:5432/fsecdatabase")
-    try:
-        dataframe.to_sql(
-            name=table_name,
-            con=engine,
-            if_exists='append',
-            index=False,
-            method='multi'
-        )
-    except Exception as e:
-        logging.error("Error inserting dataframe records: %s", str(e))
+    def handle_error(self, error, context):
+        """
+        Handle errors by logging them.
 
-def read_records_from_postgres(username, password, query):
-    """
-    Fetch data from PostgreSQL using SQLAlchemy and return a DataFrame.
+        Parameters:
+        error (Exception): The exception that was raised.
+        context (str): A description of the context in which the error occurred.
+        """
+        logger.error("Error in %s: %s", context, str(error))
 
-    Parameters:
-    username (str): PostgreSQL username.
-    password (str): PostgreSQL password.
-    query (str): SQL query to execute.
+    def create_postgres_records_from_dataframe(self, table_name, dataframe):
+        """
+        Insert new rows into the PostgreSQL table for every row in the DataFrame.
 
-    Returns:
-    pd.DataFrame: DataFrame containing the query results.
-    """
-    engine = create_engine(f"postgresql://{username}:{password}@34.73.180.136:5432/fsecdatabase")
-    try:
-        df = pd.read_sql(query, engine)
-        return df
-    except Exception as e:
-        logging.error("Error fetching data with SQLAlchemy: %s", str(e))
-    finally:
-        engine.dispose()
+        Parameters:
+        table_name (str): Name of the SQL table.
+        dataframe (pd.DataFrame): DataFrame containing data to insert.
+        """
+        try:
+            dataframe.to_sql(
+                name=table_name,
+                con=self.engine,
+                if_exists='append',
+                index=False,
+                method='multi'
+            )
+            logger.info("Dataframe records inserted successfully into table %s", table_name)
+        except SQLAlchemyError as e:
+            self.handle_error(e, "inserting dataframe records")
 
-def fetch_data_by_date(username, password, start_date, end_date):
-    """
-    Fetch records from elmetadata where the date is between start_date and end_date.
+    def read_records_from_postgres(self, query):
+        """
+        Fetch data from PostgreSQL using SQLAlchemy and return a DataFrame.
 
-    Parameters:
-    username (str): PostgreSQL username.
-    password (str): PostgreSQL password.
-    start_date (str): Start date in YYYY-MM-DD format.
-    end_date (str): End date in YYYY-MM-DD format.
+        Parameters:
+        query (str): SQL query to execute.
 
-    Returns:
-    pd.DataFrame: DataFrame containing the query results.
-    """
-    engine = create_engine(f"postgresql://{username}:{password}@34.73.180.136:5432/fsecdatabase")
-    try:
+        Returns:
+        pd.DataFrame: DataFrame containing the query results or None if an error occurs.
+        """
+        try:
+            df = pd.read_sql(query, self.engine)
+            logger.info("Query executed successfully, fetched %d rows", len(df))
+            return df
+        except SQLAlchemyError as e:
+            self.handle_error(e, "fetching data with SQLAlchemy")
+            return None
+
+    def fetch_data_by_date(self, table_name, start_date, end_date):
+        """
+        Fetch records from a specified table where the date is between start_date and end_date.
+
+        Parameters:
+        table_name (str): Name of the SQL table.
+        start_date (str): Start date in YYYY-MM-DD format.
+        end_date (str): End date in YYYY-MM-DD format.
+
+        Returns:
+        pd.DataFrame: DataFrame containing the query results or None if an error occurs.
+        """
         query = f"""
-        SELECT * FROM el_metadata 
+        SELECT * FROM {table_name} 
         WHERE date BETWEEN '{start_date}' AND '{end_date}';
         """
-        df = pd.read_sql(query, engine)
-        return df
-    except Exception as e:
-        logging.error("Error fetching data: %s", str(e))
-    finally:
-        engine.dispose()
+        try:
+            df = pd.read_sql(query, self.engine)
+            logger.info("Query executed successfully, fetched %d rows", len(df))
+            return df
+        except SQLAlchemyError as e:
+            self.handle_error(e, f"fetching data by date from {table_name}")
+            return None
 
-def get_table_names_and_comments(username, password):
-    """
-    Connect to PostgreSQL and return a list of dictionaries with table names and comments.
+    def get_table_names_and_comments(self):
+        """
+        Connect to PostgreSQL and return a DataFrame with table names and comments.
 
-    Parameters:
-    username (str): PostgreSQL username.
-    password (str): PostgreSQL password.
+        Returns:
+        pd.DataFrame: DataFrame containing table names and comments or None if an error occurs.
+        """
+        query = """
+           SELECT
+               c.relname AS table_name,
+               obj_description(c.oid) AS table_comment
+           FROM pg_class c
+           LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
+           WHERE c.relkind = 'r'
+             AND n.nspname NOT IN ('pg_catalog', 'information_schema');
+        """
+        try:
+            df = pd.read_sql(query, self.engine)
+            logger.info("Fetched %d tables with comments", len(df))
+            return df
+        except SQLAlchemyError as e:
+            self.handle_error(e, "querying database for table names and comments")
+            return None
 
-    Returns:
-    list: List of dictionaries containing table names and comments.
-    """
-    engine = create_engine(f"postgresql://{username}:{password}@34.73.180.136:5432/fsecdatabase")
-    query = text("""
-       SELECT
-           c.relname AS table_name,
-           obj_description(c.oid) AS table_comment
-       FROM pg_class c
-       LEFT JOIN pg_namespace n ON n.oid = c.relnamespace
-       WHERE c.relkind = 'r'
-         AND n.nspname NOT IN ('pg_catalog', 'information_schema');
-   """)
-    try:
-        with engine.connect() as connection:
-            result = connection.execute(query)
-            rows = result.fetchall()
-            tables = [{"table_name": row[0], "table_comment": row[1]} for row in rows]
-            return tables
-    except SQLAlchemyError as e:
-        logging.error("Error querying database: %s", str(e))
-    finally:
-        engine.dispose()
+    def __del__(self):
+        self.engine.dispose()
+
+# Example usage:
+# db = PostgresDB(username="user", password="pass")
+# db.create_postgres_records_from_dataframe("table_name", dataframe)

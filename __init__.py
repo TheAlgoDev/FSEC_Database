@@ -3,6 +3,12 @@
 Database operations package.
 """
 
+import pandas as pd
+import psycopg2
+from sqlalchemy import create_engine, text
+from sqlalchemy.exc import SQLAlchemyError
+import logging
+
 from .sqlite_operations import (
     join_module_metadata,
     get_last_date_from_table,
@@ -13,7 +19,6 @@ from .sqlite_operations import (
 )
 
 from .postgres_operations import (
-    connect_to_postgres,
     create_postgres_records_from_dataframe,
     read_records_from_postgres,
     fetch_data_by_date,
