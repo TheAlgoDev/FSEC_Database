@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Feb 19 16:32:12 2025
+Created on Wed Feb 19 17:51:57 2025
 
-SQLite operations module.
-
-Author: Brent
+@author: Doing
 """
 
 import pandas as pd
@@ -86,7 +84,7 @@ class SQLiteDB:
             with sq.connect(self.database_path) as connection:
                 cursor = connection.cursor()
                 columns_str = ', '.join(columns)
-                values_str = ', '.join(values)
+                values_str = ', '.join([f"'{val}'" for val in values])
                 sql = f"INSERT INTO {table_name} ({columns_str}) VALUES ({values_str})"
                 cursor.execute(sql)
                 connection.commit()

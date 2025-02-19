@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 """
+Created on Wed Feb 19 17:41:16 2025
+
 PostgreSQL operations module.
 
 Author: Brent
@@ -47,7 +49,7 @@ class PostgresDB:
             dataframe.to_sql(
                 name=table_name,
                 con=self.engine,
-                if_exists='append',
+                if_exists='replace',
                 index=False,
                 method='multi'
             )
@@ -121,8 +123,39 @@ class PostgresDB:
             self.handle_error(e, "querying database for table names and comments")
             return None
 
+
+
+    def get_table_schema(self, table_name):
+        """
+        Retrieve the schema of a specified table.
+
+        Parameters:
+        table_name (str): Name of the SQL table.
+
+        Returns:
+        pd.DataFrame: DataFrame containing the schema details or None if an error occurs.
+        """
+        query = f"""
+           SELECT
+               column_name,
+               data_type,
+               character_maximum_length,
+               is_nullable,
+               column_default
+           FROM information_schema.columns
+           WHERE table_name = '{table_name}';
+        """
+        try:
+            df = pd.read_sql(query, self.engine)
+            logger.info("Fetched schema for table %s", table_name)
+            return df
+        except SQLAlchemyError as e:
+            self.handle_error(e, f"querying schema for table {table_name}")
+            return None
+
     def __del__(self):
         self.engine.dispose()
+
 
 # Example usage:
 # db = PostgresDB(username="user", password="pass")
