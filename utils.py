@@ -11,10 +11,10 @@ import os
 import shutil
 import tkinter as tk
 from tkinter import filedialog
-import pandas as pd
 
 # Configuration
-LOG_PATH = os.getenv("LOG_PATH", "E:/University of Central Florida/UCF_Photovoltaics_GRP - Documents/General/FSEC_PVMCF/module_databases/FSEC_Database_log.log")
+# LOG_PATH = "E:/University of Central Florida/UCF_Photovoltaics_GRP - Documents/General/FSEC_PVMCF/module_databases/FSEC_Database_log.log"
+LOG_PATH = "C:/Users/Doing/University of Central Florida/UCF_Photovoltaics_GRP - module_databases/FSEC_Database_log.log"
 
 def deserialize_array(blob, dtype=np.float64):
     """
@@ -65,62 +65,6 @@ def get_files(title='Select files.'):
     root.destroy()
     return files
 
-def get_dir(title='Select directory.'):
-    """
-    Prompt user to select a directory.
-
-    Parameters:
-    title (str): Title on the dialog box.
-
-    Returns:
-    str: Directory path.
-    """
-    root = tk.Tk()
-    found_dir = filedialog.askdirectory(title=title)
-    found_dir = f"{found_dir}/"
-    root.destroy()
-    return found_dir
-
-def copy_files(files_to_copy, dst=None):
-    """
-    Copies files to specified directory.
-
-    Parameters:
-    files_to_copy (list): List of files to copy.
-    dst (str): Destination directory to copy the files into.
-
-    Returns:
-    list: List of new file names.
-    """
-    if not os.path.isdir(dst):
-        dst = filedialog.askdirectory(title='Select directory to store copied files.')
-
-    newnames = []
-    for n, file in enumerate(files_to_copy):
-        dst_file = f"{dst}/{os.path.basename(file)}"
-        dst_file = dst_file.replace('//', '/')
-        if not os.path.isfile(dst_file):
-            try:
-                shutil.copyfile(file, dst_file)
-                newnames.append(dst_file)
-                print(f"Copied {n+1} of {len(files_to_copy)}.")
-            except:
-                pass
-    return newnames
-
-def rename_file(full_filename, new_filename):
-    """
-    Rename a file.
-
-    Parameters:
-    full_filename (str): Current file name.
-    new_filename (str): New file name.
-
-    Returns:
-    None
-    """
-    os.rename(full_filename, new_filename)
-    print(new_filename)
 
 def get_filename_metadata(file, datatype='iv'):
     """
@@ -233,137 +177,3 @@ def get_directory_names(source):
             directory_names.append(name)
             print(name)
     return directory_names
-
-def search_files(serial_numbers=None, instrument_data_path=''):
-    """
-    Search for files based on serial numbers.
-
-    Parameters:
-    serial_numbers (list): List of serial numbers.
-    instrument_data_path (str): Instrument data path.
-
-    Returns:
-    dict: Dictionary of measurement data.
-    """
-    if not serial_numbers:
-        raise ValueError('Serial numbers list was empty.')
-
-    if not os.path.isdir(instrument_data_path):
-        instrument_data_path = filedialog.askdirectory(title='Select source of data files to search through.')
-
-    src_dict = {
-        'iv': f"{instrument_data_path}/Sinton_FMT/Results/MultiFlash/",
-        'el': f"{instrument_data_path}/EL_DSLR_CMOS/",
-        'darkiv': f"{instrument_data_path}/Dark_IV_Data/",
-        'ir': f"{instrument_data_path}/IR_ICI/",
-        'uvf': f"{instrument_data_path}/UVF_Images/",
-        'spire': f"{instrument_data_path}/Spire/Data/",
-        'v10': f"{instrument_data_path}/V10/"
-    }
-
-    instrument_data_dict = {}
-    for measurement, measurement_data_src in src_dict.items():
-        all_files = []
-        print(f"Searching for {measurement} files.")
-
-        for (dirpath, dirnames, filenames) in os.walk(measurement_data_src):
-            [all_files.append(f"{dirpath}/{f}") for f in filenames if any(sn in f for sn in serial_numbers)]
-            all_files = [a.replace('//', '/') for a in all_files]
-            instrument_data_dict[measurement] = all_files
-
-    return instrument_data_dict
-
-def retrieve_module_data(serial_number, instrument_data_path):
-    """
-    Retrieve data for a specific module based on its serial number.
-
-    Parameters:
-    serial_number (str): Serial number of the module.
-    instrument_data_path (str): Instrument data path.
-
-    Returns:
-    tuple: Serial number and dictionary of measurement data.
-    """
-    src_dict = {
-        'iv': f"{instrument_data_path}/Sinton_FMT/Results/MultiFlash/",
-        'el': f"{instrument_data_path}/EL_DSLR_CMOS/",
-        'darkiv': f"{instrument_data_path}/Dark_IV_Data/",
-        'ir': f"{instrument_data_path}/IR_ICI/",
-        'uvf': f"{instrument_data_path}/UVF_Images/",
-        'spire': f"{instrument_data_path}/Spire/Data/",
-        'v10': f"{instrument_data_path}/V10/"
-    }
-    instrument_data_dict = {}
-
-    for measurement, measurement_data_src in src_dict.items():
-        all_files = []
-        print(f"Searching for {measurement} files.")
-
-        for (dirpath, dirnames, filenames) in os.walk(measurement_data_src):
-            [all_files.append(f"{dirpath}/{f}") for f in filenames if serial_number in f]
-            all_files = [a.replace('//', '/') for a in all_files]
-            instrument_data_dict[measurement] = all_files
-    return serial_number, instrument_data_dict
-
-def copy_data_to_folder(instrument_data_dict=None, dst=None, raw_el_images=True):
-    """
-    Copy data to the specified folder.
-
-    Parameters:
-    instrument_data_dict (dict): Dictionary of measurement data.
-    dst (str): Destination folder.
-    raw_el_images (bool): Whether to include raw EL images.
-
-    Returns:
-    None
-    """
-    if not dst:
-        dst = filedialog.askdirectory(title='Select folder where files will be copied to.')
-
-    if not raw_el_images:
-        instrument_data_dict['el'] = [image_file for image_file in instrument_data_dict['el'] if image_file[-3:].upper() == 'JPG']
-
-    for measurement in instrument_data_dict:
-        dst_measurement_dir = f"{dst}/{measurement.upper()}/"
-        dst_measurement_dir = dst_measurement_dir.replace('//', '/')
-        if not os.path.isdir(dst_measurement_dir):
-            os.mkdir(dst_measurement_dir)
-        print(f"Begin copying {measurement} files: {len(instrument_data_dict[measurement])} found.")
-        copy_files(instrument_data_dict[measurement], dst=dst_measurement_dir)
-        print(f"Finished copying {len(instrument_data_dict[measurement])} {measurement.upper()} files.")
-
-def search_and_copy_files(serial_numbers=None, instrument_data_path='', dst=None, raw_el_images=True):
-    """
-    Search and copy files based on serial numbers.
-
-    Parameters:
-    serial_numbers (list): List of serial numbers.
-    instrument_data_path (str): Instrument data path.
-    dst (str): Destination folder.
-    raw_el_images (bool): Whether to include raw EL images.
-
-    Returns:
-    None
-    """
-    instrument_data_dict = search_files(serial_numbers, instrument_data_path)
-    copy_data_to_folder(instrument_data_dict, dst, raw_el_images)
-
-def get_files_in_directory(source_dir=None):
-    """
-    Get a list of all files in a directory.
-
-    Parameters:
-    source_dir (str): Source directory path.
-
-    Returns:
-    list: List of file paths.
-    """
-    if not source_dir:
-        source_dir = get_dir('Select source directory from which you want to load all files.')
-
-    all_files = []
-    for (dirpath, dirnames, filenames) in os.walk(source_dir):
-        [all_files.append(f"{dirpath}/{f}") for f in filenames]
-        all_files = [a.replace('//', '/') for a in all_files]
-
-    return all_files
