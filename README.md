@@ -8,6 +8,13 @@ This package provides utilities for interacting with PostgreSQL and SQLite datab
 ## File Descriptions
 
 ### Core Modules
+- **`spire_pipeline.py`**  
+  Simple script that creates local SQL tables from data files. 
+  - Catalogs and parses files for metadata.
+  - Links raw data with metadata using relational concepts.
+  - Allows historical data to be queried, accessed, and re-used.
+  - Prepares future projects for ontology development and infrastructure.
+    
 - **`postgres_operations.py`**  
   Contains the `PostgresDB` class for PostgreSQL operations:
   - Connect to a PostgreSQL database.
