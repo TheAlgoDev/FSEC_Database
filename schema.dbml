@@ -1,0 +1,374 @@
+Table DataDirectory {
+  table_name TEXT [primary key, unique, not null]
+  table_contents TEXT [not null]
+  Field3 TEXT
+  Field4 TEXT
+}
+
+Table dark_iv_metadata {
+  ID INTEGER [primary key, unique, not null, increment]
+  date TEXT
+  time TEXT
+  module_id REAL
+  make TEXT
+  model TEXT
+  serial_number TEXT
+  comment TEXT
+  filename TEXT [unique]
+}
+
+Table el_metadata {
+  ID INTEGER [primary key, unique, not null, increment]
+  date TEXT
+  time TEXT
+  module_id TEXT
+  make TEXT
+  model TEXT
+  serial_number TEXT
+  comment TEXT
+  exposure_time TEXT
+  current TEXT
+  voltage TEXT
+  iso TEXT
+  aperture TEXT
+  camera TEXT
+  filename TEXT [unique]
+}
+
+Table ir_indoor_metadata {
+  ID INTEGER [primary key, unique, not null, increment]
+  date TEXT
+  time TEXT
+  module_id TEXT
+  make TEXT
+  model TEXT
+  serial_number TEXT
+  comment TEXT
+  current TEXT
+  exposure_time TEXT
+  filename TEXT [unique]
+}
+
+Table ir_outdoor_metadata {
+  ID INTEGER [primary key, unique, not null]
+  module_id TEXT
+  camera_id TEXT
+  date TEXT
+  time TEXT
+  field6 TEXT
+  filename TEXT
+}
+
+Table measurement_settings {
+  module_id TEXT [primary key, unique]
+  model TEXT
+  el_iso TEXT
+  el_aperture TEXT
+  el_exposure_time TEXT
+  div_kepco_voltage TEXT
+  div_ems_voltage TEXT
+}
+
+Table module_metadata {
+  module_id TEXT [primary key, unique, not null]
+  serial_number TEXT
+  make TEXT
+  model TEXT
+  nameplate_pmp REAL
+  nameplate_vmp REAL
+  nameplate_imp REAL
+  nameplate_voc REAL
+  nameplate_isc REAL
+  temperature_coefficient_voltage TEXT
+  temperature_coefficient_power TEXT
+  temperature_coefficient_current TEXT
+  module_packaging TEXT
+  interconnection_scheme TEXT
+  number_parallel_strings TEXT
+  cells_per_string TEXT
+  module_arc TEXT
+  connector_type TEXT
+  junction_box_locations TEXT
+  number_junction_box TEXT
+  number_busbars TEXT
+  cell_area TEXT
+  module_area TEXT
+  cell_technology TEXT
+  wafer_doping_polarity TEXT
+  wafer_crystallinity TEXT
+  encapsulant TEXT
+  backsheet TEXT
+  frame_material TEXT
+  x INTEGER
+  y INTEGER
+}
+
+Table module_status {
+  ID INTEGER [primary key, unique, not null]
+  module_id TEXT
+  date REAL
+  time REAL
+  status TEXT
+  comment_temp REAL
+  exposure_step TEXT
+  location TEXT
+  serial_number_temp REAL
+  notes REAL
+  system_id TEXT
+  current_project_affiliation REAL
+  project_active TEXT
+  responsible_party REAL
+  initial_project_affiliation REAL
+  iv_date_temp REAL
+  iv_time_temp REAL
+  high_el_date_temp REAL
+  high_el_time_temp REAL
+  notes_temp REAL
+}
+
+Table scanner_jpg_metadata {
+  ID INTEGER [primary key, unique, not null, increment]
+  date INTEGER
+  time INTEGER
+  module_id TEXT
+  make TEXT
+  model TEXT
+  serial_number TEXT
+  comment TEXT
+  frames TEXT
+  exposure_time TEXT
+  current TEXT
+  voltage TEXT
+  filename TEXT [unique]
+  image_type TEXT
+}
+
+Table scanner_nc_metadata {
+  ID INTEGER [primary key, unique, not null, increment]
+  date INTEGER
+  time INTEGER
+  module_id TEXT
+  make TEXT
+  model TEXT
+  serial_number TEXT
+  comment TEXT
+  frames TEXT
+  exposure_time TEXT
+  current TEXT
+  voltage TEXT
+  filename TEXT [unique]
+}
+
+Table sinton_iv_metadata {
+  ID INTEGER [primary key, unique, not null, increment]
+  date TEXT
+  time TEXT
+  module_id TEXT
+  make TEXT
+  model TEXT
+  serial TEXT
+  load_voltage_mV TEXT
+  reference_constant_V_sun TEXT
+  voltage_temperature_coefficient_mV_C TEXT
+  temperature_offset_C TEXT
+  setpoint_initial_mV_cell TEXT
+  step_size_one_mV_cell TEXT
+  step_size_switch_mV_cell TEXT
+  step_size_two_mV_cell TEXT
+  setpoint_isc_voltage_mV_cell TEXT
+  pulse_wait_time_ms TEXT
+  pulse_wait_time_voc_ms TEXT
+  pulse_length_us TEXT
+  pulse_wait_time_voc_length_us TEXT
+  serial_number TEXT
+  mfr_filename TEXT [unique]
+  txt_filename TEXT [unique]
+}
+
+Table sinton_iv_results {
+  ID INTEGER [primary key, unique, not null, increment]
+  User_ID TEXT
+  Batch_ID TEXT
+  Sample_ID TEXT
+  Measurement_Date_Time TEXT
+  Isc_A REAL
+  Voc_V REAL
+  Imp_A REAL
+  Vmp_V REAL
+  Pmp_W REAL
+  FF_percent REAL
+  Efficiency_percent REAL
+  Rsh_ohm REAL
+  Rs_ohm REAL
+  Jsc_A_cm2 REAL
+  Voc_V_cell REAL
+  Jmp_A_cm2 REAL
+  Vmp_V_cell REAL
+  Pmp_W_cm2 REAL
+  Cell_Efficiency_percent REAL
+  Rsh_ohm_cm2 REAL
+  Rs_ohm_cm2 REAL
+  ILoad_A REAL
+  VLoad_V REAL
+  FFLoad_percent REAL
+  PLoad_W REAL
+  EffLoad_percent REAL
+  RsLoad_ohm REAL
+  JLoad_A_cm2 REAL
+  VLoad_V_cell REAL
+  PLoad_W_cm2 REAL
+  Cell_EffLoad_percent REAL
+  RsLoad_ohm_cm2 REAL
+  Rs_Modulation_ohm_cm2 REAL
+  Measured_Temperature_C REAL
+  Total_Test_Time_s REAL
+  pJmp_A_cm2 REAL
+  pVmp_V_cell REAL
+  pPmp_W_cm2 REAL
+  pFF_percent REAL
+  pEfficiency_percent REAL
+  n_at_1_sun REAL
+  n_at_1_10_suns REAL
+  Jo1_A_cm2 REAL
+  Jo2_A_cm2 REAL
+  Jo_fA_cm2 REAL
+  Jo_at_Vmp_fA_cm2 REAL
+  Jo_at_Voc_fA_cm2 REAL
+  Est_Bulk_Lifetime_us REAL
+  BRR_Hz REAL
+  Lifetime_at_Vmp_us REAL
+  Doping_cm_3 REAL
+  Measured_Resistivity_Ohm_cm REAL
+  Measured_Thickness_cm REAL
+  Lifetime_Fit_R2 REAL
+  Max_Intensity_suns REAL
+  Intensity_flash_cutoff_suns REAL
+  V_at_Isc_V REAL
+  dV_dt REAL
+  V_Pad_0_V REAL
+  V_Pad_1_V TEXT
+  V_Pad_2_V TEXT
+  V_Pad_3_V TEXT
+  V_Pad_4_V TEXT
+  dBreak_A REAL
+  dBreak_V REAL
+}
+
+Table uvf_indoor_metadata {
+  ID INTEGER [primary key, unique, not null, increment]
+  date TEXT
+  time TEXT
+  module_id TEXT
+  make TEXT
+  model TEXT
+  serial_number TEXT
+  comment TEXT
+  exposure_time TEXT
+  filename TEXT [unique]
+}
+
+Table spire_iv_metadata {
+  index TEXT
+  comment TEXT
+  op TEXT
+  id TEXT
+  mod_type TEXT
+  date TEXT
+  time TEXT
+  irradiance REAL
+  irrcorr INTEGER
+  lamp_voltage INTEGER
+  intensity_corrected_to INTEGER
+  module_temp REAL
+  corrected_to REAL
+  rccc REAL
+  voc INTEGER
+  isc INTEGER
+  rseries INTEGER
+  rshunt INTEGER
+  pmax INTEGER
+  vpm INTEGER
+  ipm INTEGER
+  fill_factor INTEGER
+  active_eff INTEGER
+  aperture_eff INTEGER
+  segment_area REAL
+  segs_in_ser INTEGER
+  segs_in_par INTEGER
+  panel_area INTEGER
+  vload INTEGER
+  ivld INTEGER
+  pvld INTEGER
+  frequency INTEGER
+  sweep_delay INTEGER
+  sweep_length INTEGER
+  sweep_slope REAL
+  sweep_dir INTEGER
+  rccc2 REAL
+  rccc3 REAL
+  rccc4 REAL
+  lampi REAL
+  intv REAL
+  intv2 REAL
+  intv3 INTEGER
+  intv4 INTEGER
+  loadv INTEGER
+  pulse_width1 REAL
+  pulse_width2 REAL
+  pulse_width3 INTEGER
+  pulse_width4 INTEGER
+  tref1 REAL
+  tref2 REAL
+  tref3 INTEGER
+  tref4 INTEGER
+  mc_mode TEXT
+  irradiance2 REAL
+  irrcorr2 INTEGER
+  voc2 INTEGER
+  isc2 INTEGER
+  pmax2 INTEGER
+  vpm2 INTEGER
+  ipm2 INTEGER
+  fill_factor2 INTEGER
+  active_eff2 INTEGER
+  aperture_eff2 INTEGER
+  loadv2 REAL
+  pulse_width12 REAL
+  pulse_width22 REAL
+  irradiance3 REAL
+  irrcorr3 INTEGER
+  voc3 INTEGER
+  isc3 INTEGER
+  pmax3 INTEGER
+  vpm3 INTEGER
+  ipm3 INTEGER
+  fill_factor3 INTEGER
+  active_eff3 INTEGER
+  aperture_eff3 INTEGER
+  loadv3 REAL
+  pulse_width13 REAL
+  pulse_width23 REAL
+  filename TEXT
+}
+
+Ref: "el_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "ir_outdoor_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "uvf_indoor_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "ir_indoor_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "scanner_jpg_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "scanner_nc_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "dark_iv_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "sinton_iv_metadata"."module_id" < "module_metadata"."module_id"
+
+Ref: "measurement_settings"."module_id" < "module_metadata"."module_id"
+
+Ref: "sinton_iv_results"."ID" < "sinton_iv_metadata"."ID"
+
+Ref: "module_status"."module_id" < "module_metadata"."module_id"
